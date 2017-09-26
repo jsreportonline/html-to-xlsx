@@ -2,7 +2,7 @@ const http = require('http')
 
 const conversion = require('html-to-xlsx')({
   tmpDir: process.env.temp,
-  timeout: 30000
+  timeout: 50000
 })
 
 const server = http.createServer((req, res) => {
@@ -12,13 +12,13 @@ const server = http.createServer((req, res) => {
     return res.end('OK')
   }
 
-  var data = ''
+  var data = []
   req.on('data', function (chunk) {
-    data += chunk.toString()
+    data.push(chunk)
   })
 
   req.on('end', function () {
-    conversion(JSON.parse(data), (err, stream) => {
+    conversion(JSON.parse(Buffer.concat(data).toString()), (err, stream) => {
       if (err) {
         console.error(err)
         res.statusCode = 400
